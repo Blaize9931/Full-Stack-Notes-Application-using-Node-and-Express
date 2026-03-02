@@ -1,0 +1,41 @@
+html {
+    height: 100dvh;
+}
+
+body {
+    height: 100dvh;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    font-family: "Nanum Pen Script";
+}
+
+.container {    
+    background-color: beige;
+    height: 45dvh;
+    width: 35dvh;
+}
+
+input {
+    width: 34vh;
+}
+
+button:hover {
+    background-color: bisque;
+}
+
+
+.nanum-pen-script-regular {
+  font-family: "Nanum Pen Script", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+h2 {
+    font-size: clamp(16px, 4vw, 32px)
+}
+
+input, .inputbtn {
+    font-size: clamp(14px, 3vw, 30px)
+}
+
