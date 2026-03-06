@@ -3,6 +3,7 @@ const add = document.getElementById("add");
 const noteInput = document.getElementById("note-input");
 const notesList = document.querySelector(".notesList");
 const editTodoBtn = document.querySelector(".edit");
+add.addEventListener("click", addNote);
 
 
 
@@ -18,7 +19,7 @@ function loadNotes() {
     })
     .catch( (error) => {
         console.log("Notes failed to load");
-        alert("Failed to load notes")
+        alert("Failed to load notes", error)
     })
 }
 
@@ -34,35 +35,61 @@ function renderNotes (notesArray) {
     const arrayLength = notesArray.length;
     for(let i = 0; i < arrayLength; i++)
     { 
-        const createLi = document.createElement("li")
-        createLi.textContent = `${notesArray[i].content}` ;
-        notesList.appendChild(createLi);
+    const createLi = document.createElement("li")
+    createLi.dataset.id = notesArray[1].id; 
+
+    createLi.innerHTML = `<span class="note-text">${notesArray[i].content}</span>
+                            <div>
+                                <button class="btn delete">Erase</button>
+                                <button class="btn edit">Edit</button>
+                            </div>`;
+
+    // createLi.textContent = `${notesArray[i].content}` ;
+    notesList.appendChild(createLi);
         
     }
     
-}
+};
 
 
+function addNote() {
+
+    const content = noteInput.value.trim();
+   if(content == "") {
+        alert("You need to write something!");
+        return;
+    } else {
+         fetch("/api/notes", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json" } ,
+            body: JSON.stringify({content: content})
+        })
+        .then ( (response) => { if (!response.ok) {
+             throw new Error ("Unable to complete fetch request");     
+        } else {
+            return response.json()
+        }})
+        .then ( () => {noteInput.value= ""; loadNotes()}
+        )
+        .catch ( (error) => {
+            console.error("Error fetching:", error);
+        });
+    }
+    }
+        
+        
+        
+    // const createLiEl = document.createElement("li");
+    // createLiEl.innerHTML = `<span class="note-text">${noteInput.value.trim()}</span>
+    //                         <div>
+    //                             <button class="btn delete">Erase</button>
+    //                             <button class="btn edit">Edit</button>
+    //                         </div>`;
+    // notesList.appendChild(createLiEl);
+   
 
 
-
-
-
-
-// function addNote() {
-
-//    if(noteInput.value.trim() == "") {
-//         alert("You need to write something!");
-// } else {
-//     const createLiEl = document.createElement("li");
-//     createLiEl.innerHTML = `<span class="note-text">${noteInput.value.trim()}</span>
-//                             <div>
-//                                 <button class="btn delete">Erase</button>
-//                                 <button class="btn edit">Edit</button>
-//                             </div>`;
-//     notesList.appendChild(createLiEl);
-
-// }
 
 
 
@@ -96,4 +123,4 @@ function deleteNote (e) {
     closestLi.remove();
 
 
-}
+} 

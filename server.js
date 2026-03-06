@@ -16,6 +16,17 @@ const readData = () => {
   return JSON.parse(data);
 };
 
+function writeData (updatedArray) {
+    if (!Array.isArray(updatedArray) || !updatedArray.every(note =>   note !== null &&
+  typeof note === "object" &&
+  Object.prototype.hasOwnProperty.call(note, "id") &&
+  Object.prototype.hasOwnProperty.call(note, "content") ) ) {
+      throw new Error("writeData expected an array")
+    }  
+    const data = JSON.stringify(updatedArray, null, 2)
+    fs.writeFileSync(dataFilePath, data, "utf8")
+}
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
@@ -28,3 +39,10 @@ app.get("/api/notes", (req, res) => {
     res.send(data);
 });
 
+app.post("/api/notes", (req, res) => {
+  const newNotes = { id: String(Date.now()), content: req.body["content"] };
+  const notes = readData();
+  notes.push(newNotes); 
+  writeData(notes); 
+   res.json({ message: "Data saved successfully", data: newNotes });
+});
