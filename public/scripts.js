@@ -2,19 +2,16 @@ document.addEventListener("DOMContentLoaded", loadNotes);
 const add = document.getElementById("add");
 const noteInput = document.getElementById("note-input");
 const notesList = document.querySelector(".notesList");
-const editTodoBtn = document.querySelector(".edit");
 add.addEventListener("click", addNote);
 notesList.addEventListener("click", function(e) {
-  if (e.target.classList.contains("delete")) {
-    deleteNote(e);
-  }
+    if (e.target.classList.contains("delete")) {
+        deleteNote(e); 
+    };
+    if (e.target.classList.contains("edit")) {
+        editNote(e);
+    };
+    
 });
-notesList.addEventListener("click", function(e) {
-  if (e.target.classList.contains("edit")) {
-    editNote(e);
-  }
-});
-
 
 function loadNotes() {
     
@@ -52,7 +49,7 @@ function renderNotes (notesArray) {
                                 <button class="btn edit">Edit</button>
                             </div>`;
 
-    // createLi.textContent = `${notesArray[i].content}` ;
+    ;
     notesList.appendChild(createLi);
         
     }
@@ -100,8 +97,7 @@ function editNote (e) {
         if ( e.key === "Enter") {
             const id = closestLi.dataset.id
             const editedValue = newInput.value.trim();
-            // closestText.textContent = newInput.value
-            // closestLi.replaceChild(closestText, newInput);
+
         if (editedValue === "") {
            alert("Entry cannot be empty")
            return; 
