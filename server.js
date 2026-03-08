@@ -46,3 +46,16 @@ app.post("/api/notes", (req, res) => {
   writeData(notes); 
    res.json({ message: "Data saved successfully", data: newNotes });
 });
+
+app.delete("/api/notes/:id", (req, res) => {
+  const id = req.params['id'];
+  const notes = readData();
+  const updatedArray = notes.filter((note) => {
+  return note.id !== id; 
+  });
+  if (updatedArray.length === notes.length) {
+    return res.status(404).json({ error: "Note not found" });
+  };
+  writeData(updatedArray);
+  return res.sendStatus(204);
+});

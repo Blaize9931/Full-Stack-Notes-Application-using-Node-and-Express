@@ -4,8 +4,11 @@ const noteInput = document.getElementById("note-input");
 const notesList = document.querySelector(".notesList");
 const editTodoBtn = document.querySelector(".edit");
 add.addEventListener("click", addNote);
-
-
+notesList.addEventListener("click", function(e) {
+  if (e.target.classList.contains("delete")) {
+    deleteNote(e);
+  }
+});
 
 
 function loadNotes() {
@@ -36,7 +39,7 @@ function renderNotes (notesArray) {
     for(let i = 0; i < arrayLength; i++)
     { 
     const createLi = document.createElement("li")
-    createLi.dataset.id = notesArray[1].id; 
+    createLi.dataset.id = notesArray[i].id; 
 
     createLi.innerHTML = `<span class="note-text">${notesArray[i].content}</span>
                             <div>
@@ -118,9 +121,25 @@ function editNote (e) {
 }
 
 function deleteNote (e) { 
+    
     let button = e.target
-    const closestLi = button.closest("li");
-    closestLi.remove();
-
-
+    if (button.classList.contains("delete")) {
+        const closestLi = button.closest("li");
+        const id = closestLi.dataset.id 
+        fetch(`/api/notes/${id}`, {
+            method: "DELETE"
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Failed to delete note");
+            }
+            loadNotes();
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+        console.log("delete clicked");
+    }
+    
+    // closestLi.remove();
 } 
