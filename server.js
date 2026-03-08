@@ -35,52 +35,99 @@ app.listen(PORT, () => {
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/api/notes", (req, res) => {
-    const data = readData()
-    res.send(data);
+  try {
+    const notes = readData();
+    return res.status(200).json(notes);
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to load notes" });
+  }
 });
+
+
 
 app.post("/api/notes", (req, res) => {
-  const newNotes = { id: String(Date.now()), content: req.body["content"] };
-  const notes = readData();
-  notes.push(newNotes); 
-  writeData(notes); 
-   res.json({ message: "Data saved successfully", data: newNotes });
+  const content = req.body.content;
+
+  if (typeof content !== "string") {
+    return res.status(400).json({ error: "Content must be a string" });
+  }
+
+  const trimmedContent = content.trim();
+
+  if (trimmedContent === "") {
+    return res.status(400).json({ error: "Content cannot be empty" });
+  }
+
+  try {
+    const notes = readData();
+
+    const newNote = {
+      id: String(Date.now()),
+      content: trimmedContent
+    };
+
+    notes.push(newNote);
+    writeData(notes);
+    return res.status(201).json({
+      message: "Note created",
+      data: newNote
+
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to save note" });
+  }
 });
 
+
+
 app.delete("/api/notes/:id", (req, res) => {
-  const id = req.params['id'];
-  const notes = readData();
-  const updatedArray = notes.filter((note) => {
-  return note.id !== id; 
-  });
-  if (updatedArray.length === notes.length) {
-    return res.status(404).json({ error: "Note not found" });
-  };
-  writeData(updatedArray);
-  return res.sendStatus(204);
+  const id = req.params.id;
+
+  try {
+    const notes = readData();
+    const updatedNotes = notes.filter((note) => note.id !== id);
+
+    if (updatedNotes.length === notes.length) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    writeData(updatedNotes);
+    return res.sendStatus(204);
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to delete note" });
+  }
 });
 
 app.put("/api/notes/:id", (req, res) => {
   const id = req.params.id;
-  const notes = readData();
-  const newContent = req.body.content;
-  if (!newContent || newContent.trim() === "") {
-   return res.sendStatus(400);
+  const content = req.body.content;
+
+  if (typeof content !== "string") {
+    return res.status(400).json({ error: "Content must be a string" });
   }
 
-  const noteToUpdate = notes.find((note) => {
-    return note.id === id;
-  });
+  const trimmedContent = content.trim();
 
-  if (!noteToUpdate) {
-    return res.sendStatus(404);
+  if (trimmedContent === "") {
+    return res.status(400).json({ error: "Content cannot be empty" });
   }
 
-  noteToUpdate.content = newContent;
-  writeData(notes);
-  return res.status(200).json({
-    message: "Note updated",
-    data: noteToUpdate
-  });
- 
+  try {
+    const notes = readData();
+    const noteToUpdate = notes.find((note) => note.id === id);
+
+    if (!noteToUpdate) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    noteToUpdate.content = trimmedContent;
+    writeData(notes);
+
+    return res.status(200).json({
+      message: "Note updated",
+      data: noteToUpdate
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to update note" });
+  }
 });
