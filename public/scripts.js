@@ -9,6 +9,11 @@ notesList.addEventListener("click", function(e) {
     deleteNote(e);
   }
 });
+notesList.addEventListener("click", function(e) {
+  if (e.target.classList.contains("edit")) {
+    editNote(e);
+  }
+});
 
 
 function loadNotes() {
@@ -27,7 +32,7 @@ function loadNotes() {
 }
 
 function renderNotes (notesArray) {
-    notesList.innerHTML = ` `;
+    notesList.innerHTML = "";
     if (notesArray.length === 0) {
         const createLi = document.createElement("li")
         createLi.textContent = "There are no notes currently" ;
@@ -80,47 +85,51 @@ function addNote() {
         });
     }
     }
-        
-        
-        
-    // const createLiEl = document.createElement("li");
-    // createLiEl.innerHTML = `<span class="note-text">${noteInput.value.trim()}</span>
-    //                         <div>
-    //                             <button class="btn delete">Erase</button>
-    //                             <button class="btn edit">Edit</button>
-    //                         </div>`;
-    // notesList.appendChild(createLiEl);
-   
-
-
-
-
 
 function editNote (e) {
     let button = e.target
-    const closestLi = button.closest("li");
-    const closestText = closestLi.querySelector(".note-text");
-    const newInput = document.createElement("input");
-    let eventLocation = e.target
-    
-    
-    if (button.closest(".edit")) {
+     
+    if (button.classList.contains("edit")) {
+        const closestLi = button.closest("li");
+        const closestText = closestLi.querySelector(".note-text");
+        const newInput = document.createElement("input");
         newInput.value = closestText.textContent
         closestLi.replaceChild(newInput, closestText)
-    }
-    
-    newInput.addEventListener("keydown", function(e) {
+
+        newInput.addEventListener("keydown", function(e) {
         if ( e.key === "Enter") {
-
-            closestText.textContent = newInput.value
-            closestLi.replaceChild(closestText, newInput);
-
+            const id = closestLi.dataset.id
+            const editedValue = newInput.value.trim();
+            // closestText.textContent = newInput.value
+            // closestLi.replaceChild(closestText, newInput);
+        if (editedValue === "") {
+           alert("Entry cannot be empty")
+           return; 
         }
-    }) 
+            fetch(`/api/notes/${id}`, {
+                method: "PUT", 
+                headers: {
+                    "Content-Type": "application/json" } ,
+                body: JSON.stringify({content: editedValue})
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Failed to edit note");
+                }
+                return response.json();
+            })
+            .then(() => {
+                loadNotes();
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+            console.log("edit clicked"); 
+        }
+        }); 
+    }}
          
-}
-
-function deleteNote (e) { 
+function deleteNote(e) { 
     
     let button = e.target
     if (button.classList.contains("delete")) {
@@ -141,5 +150,4 @@ function deleteNote (e) {
         console.log("delete clicked");
     }
     
-    // closestLi.remove();
 } 

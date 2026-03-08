@@ -59,3 +59,28 @@ app.delete("/api/notes/:id", (req, res) => {
   writeData(updatedArray);
   return res.sendStatus(204);
 });
+
+app.put("/api/notes/:id", (req, res) => {
+  const id = req.params.id;
+  const notes = readData();
+  const newContent = req.body.content;
+  if (!newContent || newContent.trim() === "") {
+   return res.sendStatus(400);
+  }
+
+  const noteToUpdate = notes.find((note) => {
+    return note.id === id;
+  });
+
+  if (!noteToUpdate) {
+    return res.sendStatus(404);
+  }
+
+  noteToUpdate.content = newContent;
+  writeData(notes);
+  return res.status(200).json({
+    message: "Note updated",
+    data: noteToUpdate
+  });
+ 
+});
